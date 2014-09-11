@@ -40,4 +40,46 @@ describe SaferTokens::Column do
     end
   end
 
+
+  shared_examples "token generation" do
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+    let(:model){ ExampleModel.new }
+
+    it "sets requested column" do
+      proc{ subject.(model) }.should change{ model[:token] }
+    end
+
+    it "returns token" do
+      column_definition.stub(:get_token){ "token_for_model" }
+      subject.(model).should == "token_for_model"
+    end
+  end
+
+
+  describe "#set_token" do
+    subject{ column_definition.method :set_token }
+
+    include_examples "token generation"
+
+    it "does not save the model" do
+      proc{ subject.(model) }.should_not change{ model.persisted? }
+    end
+  end
+
+
+  describe "#set_token!" do
+    subject{ column_definition.method :set_token! }
+
+    include_examples "token generation"
+
+    it "saves the model" do
+      proc{ subject.(model) }.should change{ model.persisted? }
+    end
+
+    it "raises exception when model validations fail" do
+      model.stub(:valid? => false)
+      proc{ subject.(model) }.should raise_exception
+    end
+  end
+
 end
