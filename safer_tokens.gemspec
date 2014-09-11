@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'secure_token/version'
+require 'safer_tokens/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "secure_token"
-  spec.version       = SecureToken::VERSION
+  spec.name          = "safer_tokens"
+  spec.version       = SaferTokens::VERSION
   spec.authors       = ["Sebastian Skałacki"]
   spec.email         = ["skalee@gmail.com"]
   spec.summary       = %q{Timing-attack-proof tokens for ActiveRecord}
   spec.description   = %q{Tokens for securing APIs, confirmations etc. TODO}
-  spec.homepage      = "https://github.com/skalee/secure_token"
+  spec.homepage      = "https://github.com/skalee/safer_tokens"
   spec.license       = "Ruby, ISC, 2-clause BSD"
 
   spec.files         = `git ls-files -z`.split("\x0")

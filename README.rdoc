@@ -1,4 +1,4 @@
-= SecureToken
+= SaferTokens
 
 TODO: Write a gem description
 

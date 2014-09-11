@@ -1,4 +1,4 @@
-module SecureToken
+module SaferTokens
   module Model
   end
 end

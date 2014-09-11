@@ -1,4 +1,4 @@
-module SecureToken
+module SaferTokens
   class Column
 
     attr_reader :token_column

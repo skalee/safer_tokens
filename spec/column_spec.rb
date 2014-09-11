@@ -1,9 +1,9 @@
 require_relative "spec_helper"
 
-describe SecureToken::Column do
+describe SaferTokens::Column do
 
   describe ".new" do
-    subject{ SecureToken::Column.method :new }
+    subject{ SaferTokens::Column.method :new }
 
     it "sets token_column and options-related attributes" do
       column_object = subject.(:some_column, some: :options)

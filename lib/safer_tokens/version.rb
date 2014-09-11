@@ -1,3 +1,3 @@
-module SecureToken
+module SaferTokens
   VERSION = "0.0.1"
 end
