@@ -5,10 +5,22 @@ describe SaferTokens::Column do
   describe ".new" do
     subject{ SaferTokens::Column.method :new }
 
-    it "sets token_column and options-related attributes" do
-      column_object = subject.(:some_column, some: :options)
+    it "sets token_column" do
+      column_object = subject.(:some_column, {})
       column_object.token_column.should == :some_column
-      skip "TODO options"
+    end
+
+    it "sets default column options unless overriden" do
+      column_object = subject.(:some_column, {})
+      column_object.invalidation_strategy.should == :nullify
+    end
+
+    it "allows overriding column options" do
+      options_arg = {
+        invalidate_with: :destroy,
+      }
+      column_object = subject.(:some_column, options_arg)
+      column_object.invalidation_strategy.should == :destroy
     end
   end
 

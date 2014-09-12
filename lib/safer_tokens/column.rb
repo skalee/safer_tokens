@@ -3,10 +3,11 @@ module SaferTokens
 
     DEFAULT_TOKEN_GENERATOR = proc{ SecureRandom.hex(64) }
 
-    attr_reader :token_column
+    attr_reader :token_column, :invalidation_strategy
 
     def initialize token_column, options
       @token_column = token_column
+      @invalidation_strategy = options[:invalidate_with] || :nullify
     end
 
     # Returns token for model basing on his +id+ and token column value.
