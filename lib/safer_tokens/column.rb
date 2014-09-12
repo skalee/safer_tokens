@@ -36,5 +36,22 @@ module SaferTokens
       get_token model
     end
 
+    # Invalidates token.  Database is always altered (model is saved, destroyed
+    # or deleted)
+    # +:new+:: generate new token and set the column to it
+    # +:nullify+:: set the column to nil
+    # +:destroy+:: destroy the model
+    # +:delete+:: delete the model without triggering callbacks
+    def invalidate_token model
+      case invalidation_strategy
+      when :new then set_token! model
+      when :nullify then model[token_column] = nil ; model.save!
+      when :destroy then model.destroy
+      when :delete then model.class.delete model.id
+      else raise ArgumentError, "unknown token invalidation strategy"
+      end
+      nil
+    end
+
   end
 end

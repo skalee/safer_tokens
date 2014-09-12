@@ -94,4 +94,46 @@ describe SaferTokens::Column do
     end
   end
 
+
+  describe "#invalidate_token" do
+    subject{ column_definition.method :invalidate_token }
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+    let(:model){ ExampleModel.new token: "old token" }
+
+    it "nullifies column and saves model for :nullify strategy" do
+      column_definition.stub :invalidation_strategy => :nullify
+      subject.call(model)
+      model.reload
+      model[:token].should be_nil
+    end
+
+    it "sets new token and saves model for :new strategy" do
+      column_definition.stub :invalidation_strategy => :new
+      SaferTokens::Column::DEFAULT_TOKEN_GENERATOR.stub :call => "new token"
+      subject.(model)
+      model.reload
+      model[:token].should == "new token"
+    end
+
+    it "destroys model for :destroy strategy" do
+      column_definition.stub :invalidation_strategy => :destroy
+      subject.(model)
+      model.should be_destroyed
+    end
+
+    it "deletes model for :delete strategy" do
+      column_definition.stub :invalidation_strategy => :delete
+      subject.(model)
+      model.should_not be_destroyed
+      model.class.should_not exist model.id
+    end
+
+    it "fails for unknown strategy" do
+      column_definition.stub :invalidation_strategy => :strange_strategy
+      proc{
+        subject.(model)
+      }.should raise_exception ArgumentError
+    end
+  end
+
 end
