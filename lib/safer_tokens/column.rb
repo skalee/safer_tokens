@@ -64,6 +64,14 @@ module SaferTokens
       segments.try(:size) == 2 and segments or raise ArgumentError
     end
 
+    def use_token relation, token
+      id, challenger = parse_token token
+      model = relation.find(id)
+      model if matches? model, challenger
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+
   private
 
     # Constant-time comparison algorithm to prevent timing attacks.  Copied from

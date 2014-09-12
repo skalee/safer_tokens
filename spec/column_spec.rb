@@ -167,4 +167,23 @@ describe SaferTokens::Column do
     end
   end
 
+
+  describe "#use_token" do
+    subject{ column_definition.method :use_token }
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+    let!(:persisted_model){ ExampleModel.create! token: "some_token" }
+
+    it "returns the model of which id and token columns consist of valid id and value" do
+      subject.(ExampleModel.all, "#{persisted_model.id}-some_token").should == persisted_model
+    end
+
+    it "id exists but value doesn't match" do
+      subject.(ExampleModel.all, "#{persisted_model.id}-not_this_token").should be nil
+    end
+
+    it "there is no record with id fetched from record" do
+      subject.(ExampleModel.all, "#{persisted_model.id + 1}-some_token").should be nil
+    end
+  end
+
 end
