@@ -152,4 +152,19 @@ describe SaferTokens::Column do
     end
   end
 
+  describe "#matches?" do
+    subject{ column_definition.method :matches? }
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+    let(:model){ ExampleModel.new token: "some_token" }
+
+    it "returns true when value stored in model's token column equals to " \
+        "challenge argument" do
+      subject.(model, "some_token").should be true
+    end
+
+    it "returns false otherwise" do
+      subject.(model, "other_token").should be false
+    end
+  end
+
 end

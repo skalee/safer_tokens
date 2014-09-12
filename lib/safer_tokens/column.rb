@@ -53,11 +53,30 @@ module SaferTokens
       nil
     end
 
+    def matches? model, challenger
+      secure_compare model[token_column], challenger
+    end
+
     # Verifies token correctness and splits it into segments: +id+
     # and +challenger+ string.
     def parse_token token
       segments = token && token.split("-")
       segments.try(:size) == 2 and segments or raise ArgumentError
+    end
+
+  private
+
+    # Constant-time comparison algorithm to prevent timing attacks.  Copied from
+    # ActiveSupport::MessageVerifier.
+    # https://github.com/rails/rails/blob/08754f12e6/activesupport/lib/active_support/message_verifier.rb
+    def secure_compare a, b
+      return false unless a.bytesize == b.bytesize
+
+      l = a.unpack "C#{a.bytesize}"
+
+      res = 0
+      b.each_byte { |byte| res |= byte ^ l.shift }
+      res == 0
     end
 
   end
