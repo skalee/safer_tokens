@@ -53,5 +53,12 @@ module SaferTokens
       nil
     end
 
+    # Verifies token correctness and splits it into segments: +id+
+    # and +challenger+ string.
+    def parse_token token
+      segments = token && token.split("-")
+      segments.try(:size) == 2 and segments or raise ArgumentError
+    end
+
   end
 end

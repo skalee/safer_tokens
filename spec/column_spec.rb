@@ -136,4 +136,20 @@ describe SaferTokens::Column do
     end
   end
 
+
+  describe "#parse_token" do
+    subject{ column_definition.method :parse_token }
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+
+    it "splits token into id and verification" do
+      subject.("1234-arbitrary_string").should == ["1234", "arbitrary_string"]
+    end
+
+    [nil, " ", "only_one_segment", "too-many-segments"].each do |token|
+      it "fails when token looks invalid, as in #{token.inspect}" do
+        proc{ subject.(token) }.should raise_exception ArgumentError
+      end
+    end
+  end
+
 end
