@@ -174,15 +174,45 @@ describe SaferTokens::Column do
     let!(:persisted_model){ ExampleModel.create! token: "some_token" }
 
     it "returns the model of which id and token columns consist of valid id and value" do
-      subject.(ExampleModel.all, "#{persisted_model.id}-some_token").should == persisted_model
+      token = "#{persisted_model.id}-some_token"
+      subject.(ExampleModel.all, token).should == persisted_model
     end
 
     it "id exists but value doesn't match" do
-      subject.(ExampleModel.all, "#{persisted_model.id}-not_this_token").should be nil
+      token = "#{persisted_model.id}-not_this_token"
+      subject.(ExampleModel.all, token).should be nil
     end
 
     it "there is no record with id fetched from record" do
-      subject.(ExampleModel.all, "#{persisted_model.id + 1}-some_token").should be nil
+      token = "#{persisted_model.id + 1}-some_token"
+      subject.(ExampleModel.all, token).should be nil
+    end
+  end
+
+
+  describe "#expend_token" do
+    subject{ column_definition.method :expend_token }
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+
+    it "finds model with #use_token and – if found – returns it" \
+        "and invalidates" do
+      model_dbl = double
+      column_definition.should_receive(:use_token)
+        .with(:relation, :token)
+        .and_return(model_dbl)
+      column_definition.should_receive(:invalidate_token)
+        .with(model_dbl)
+
+      subject.(:relation, :token).should == model_dbl
+    end
+
+    it "finds model with #use_token and – if not found – returns nil" do
+      column_definition.should_receive(:use_token)
+        .with(:relation, :token)
+        .and_return(nil)
+      column_definition.should_not_receive(:invalidate_token)
+
+      subject.(:relation, :token).should be nil
     end
   end
 

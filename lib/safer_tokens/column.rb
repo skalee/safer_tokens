@@ -72,6 +72,12 @@ module SaferTokens
       nil
     end
 
+    def expend_token relation, token
+      model = use_token relation, token
+      invalidate_token model if model.present?
+      model
+    end
+
   private
 
     # Constant-time comparison algorithm to prevent timing attacks.  Copied from
