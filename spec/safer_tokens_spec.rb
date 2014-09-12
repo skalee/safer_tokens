@@ -47,7 +47,68 @@ describe SaferTokens do
       }
     end
 
-    it "defines method of names concluded from token columns"
+    it "redefines attribute accessor" do
+      ExampleModel.class_eval do
+        token_in :token, :another_token
+      end
+
+      model = ExampleModel.new
+
+      token_col_def = ExampleModel.safer_tokens_columns[:token]
+      another_col_def = ExampleModel.safer_tokens_columns[:another_token]
+
+      token_col_def.should_receive(:get_token)
+        .with(model)
+        .and_return(:proper_token)
+      model.token.should == :proper_token
+
+      another_col_def.should_receive(:get_token)
+        .with(model)
+        .and_return(:another_proper_token)
+      model.another_token.should == :another_proper_token
+    end
+
+    it "defines finders of names concluded from token columns" do
+      ExampleModel.class_eval do
+        token_in :token, :another_token
+      end
+
+      token_col_def = ExampleModel.safer_tokens_columns[:token]
+      another_col_def = ExampleModel.safer_tokens_columns[:another_token]
+
+      token_col_def.should_receive(:use_token)
+        .with(ExampleModel.all, :token_1)
+      ExampleModel.use_token :token_1
+
+      token_col_def.should_receive(:expend_token)
+        .with(ExampleModel.all, :token_2)
+      ExampleModel.expend_token :token_2
+
+      another_col_def.should_receive(:use_token)
+        .with(ExampleModel.all, :token_3)
+      ExampleModel.use_another_token :token_3
+
+      another_col_def.should_receive(:expend_token)
+        .with(ExampleModel.all, :token_4)
+      ExampleModel.expend_another_token :token_4
+    end
+
+    it "defines token setters of names concluded from token columns" do
+      ExampleModel.class_eval do
+        token_in :another_token
+      end
+
+      model = ExampleModel.new
+      column_def = ExampleModel.safer_tokens_columns[:another_token]
+
+      column_def.should_receive(:set_token).with(model).and_return(:new_token)
+      ret_val = model.set_another_token
+      ret_val.should == :new_token
+
+      column_def.should_receive(:set_token!).with(model).and_return(:new_token)
+      ret_val = model.set_another_token!
+      ret_val.should == :new_token
+    end
   end
 
 
