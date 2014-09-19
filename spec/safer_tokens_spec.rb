@@ -2,7 +2,7 @@ require_relative "spec_helper"
 
 describe SaferTokens do
 
-  describe ".token_in" do
+  describe "::token_in" do
     it "is always available in ActiveRecord" do
       ActiveRecord::Base.should respond_to :token_in
     end
@@ -112,7 +112,7 @@ describe SaferTokens do
   end
 
 
-  describe ".safer_tokens_columns" do
+  describe "::safer_tokens_columns" do
     it "is always available in ActiveRecord" do
       ActiveRecord::Base.should respond_to :safer_tokens_columns
     end
