@@ -20,7 +20,7 @@ module SaferTokens
     # the token.  Contrary to #set_token!, the model is not saved.
     # For new records returns +nil+ because +id+ is blank.
     def set_token model
-      new_token = DEFAULT_TOKEN_GENERATOR.call
+      new_token = generate_challenge
       model[token_column] = new_token
       get_token model
     end
@@ -91,6 +91,11 @@ module SaferTokens
       res = 0
       b.each_byte { |byte| res |= byte ^ l.shift }
       res == 0
+    end
+
+    # Generates challenge string.
+    def generate_challenge
+      DEFAULT_TOKEN_GENERATOR.call
     end
 
   end

@@ -56,9 +56,10 @@ describe SaferTokens::Column do
   shared_examples "token generation" do
     let(:column_definition){ SaferTokens::Column.new :token, {} }
     let(:model){ ExampleModel.new }
+    before{ column_definition.stub(:generate_challenge).and_return("123") }
 
     it "sets requested column" do
-      proc{ subject.(model) }.should change{ model[:token] }
+      proc{ subject.(model) }.should change{ model[:token] }.to("123")
     end
 
     it "returns token" do
@@ -213,6 +214,18 @@ describe SaferTokens::Column do
       column_definition.should_not_receive(:invalidate_token)
 
       subject.(:relation, :token).should be nil
+    end
+  end
+
+
+  describe "#generate_challenge" do
+    subject{ column_definition.method :generate_challenge }
+
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+
+    it "returns 64-byte random in hexadecimal notation" do
+      ret_val = subject.()
+      ret_val.should match /\A[[:xdigit:]]{128}\Z/
     end
   end
 
