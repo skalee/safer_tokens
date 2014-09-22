@@ -16,9 +16,9 @@ module SaferTokens
       token_segments.join "-" if token_segments.all?(&:present?)
     end
 
-    # Sets the column with freshly generated value and returns the token.
-    # Contrary to #set_token!, the model is not saved.  For new records
-    # returns +nil+ because +id+ is blank.
+    # Sets the column to freshly generated challenge string and returns
+    # the token.  Contrary to #set_token!, the model is not saved.
+    # For new records returns +nil+ because +id+ is blank.
     def set_token model
       new_token = DEFAULT_TOKEN_GENERATOR.call
       model[token_column] = new_token
