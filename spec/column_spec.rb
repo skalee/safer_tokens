@@ -179,12 +179,12 @@ describe SaferTokens::Column do
       subject.(ExampleModel.all, token).should == persisted_model
     end
 
-    it "id exists but challenge doesn't match" do
+    it "returns nil when id exists but challenge doesn't match" do
       token = "#{persisted_model.id}-not_this_token"
       subject.(ExampleModel.all, token).should be nil
     end
 
-    it "there is no record with id fetched from record" do
+    it "returns nil when there is no record with matching id" do
       token = "#{persisted_model.id + 1}-some_token"
       subject.(ExampleModel.all, token).should be nil
     end
@@ -195,8 +195,8 @@ describe SaferTokens::Column do
     subject{ column_definition.method :expend_token }
     let(:column_definition){ SaferTokens::Column.new :token, {} }
 
-    it "finds model with #use_token and – if found – returns it" \
-        "and invalidates" do
+    it "tries to fetch model with #use_token and" \
+        " – if found – returns it and invalidates" do
       model_dbl = double
       column_definition.should_receive(:use_token)
         .with(:relation, :token)
@@ -207,7 +207,8 @@ describe SaferTokens::Column do
       subject.(:relation, :token).should == model_dbl
     end
 
-    it "finds model with #use_token and – if not found – returns nil" do
+    it "tries to fetch model with #use_token and" \
+        " – if not found – returns nil" do
       column_definition.should_receive(:use_token)
         .with(:relation, :token)
         .and_return(nil)
