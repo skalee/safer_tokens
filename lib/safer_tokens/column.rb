@@ -3,16 +3,31 @@ module SaferTokens
 
     DEFAULT_TOKEN_GENERATOR = proc{ SecureRandom.hex(64) }
 
-    attr_reader :token_column, :invalidation_strategy
+    attr_reader :token_column, :invalidation_strategy, :cryptography_provider
+
+    delegate :encrypt, :decrypt, :compare, to: :cryptography_provider
 
     def initialize token_column, options
       @token_column = token_column
       @invalidation_strategy = options[:invalidate_with] || :nullify
+
+      case options[:secure_with]
+      when :bcrypt
+        cryptography_provider_class = Cryptography::BCrypt
+      when :scrypt
+        cryptography_provider_class = Cryptography::SCrypt
+      when :cleartext, nil
+        cryptography_provider_class = Cryptography::Cleartext
+      else
+        message = "Unknown cryptography provider: #{options[:secure_with]}"
+        raise ArgumentError, message
+      end
+      @cryptography_provider = cryptography_provider_class.new
     end
 
     # Returns token for model basing on his +id+ and token column value.
     def get_token model
-      token_segments = [model[:id], model[token_column]]
+      token_segments = [model[:id], (decrypt model[token_column])]
       token_segments.join "-" if token_segments.all?(&:present?)
     end
 
@@ -21,7 +36,7 @@ module SaferTokens
     # For new records returns +nil+ because +id+ is blank.
     def set_token model
       new_token = generate_challenge
-      model[token_column] = new_token
+      model[token_column] = encrypt new_token
       get_token model
     end
 
@@ -54,7 +69,7 @@ module SaferTokens
     end
 
     def matches? model, challenger
-      secure_compare model[token_column], challenger
+      compare model[token_column], challenger
     end
 
     # Verifies token correctness and splits it into segments: +id+
