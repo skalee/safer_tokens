@@ -3,12 +3,13 @@ module SaferTokens
 
     DEFAULT_TOKEN_GENERATOR = proc{ SecureRandom.hex(64) }
 
-    attr_reader :token_column, :invalidation_strategy, :cryptography_provider
+    attr_reader :challenge_column, :invalidation_strategy,
+      :cryptography_provider
 
     delegate :encrypt, :decrypt, :compare, to: :cryptography_provider
 
-    def initialize token_column, options
-      @token_column = token_column
+    def initialize challenge_column, options
+      @challenge_column = challenge_column
       @invalidation_strategy = options[:invalidate_with] || :nullify
 
       case options[:secure_with]
@@ -27,7 +28,7 @@ module SaferTokens
 
     # Returns token for model basing on his +id+ and token column value.
     def get_token model
-      token_segments = [model[:id], (decrypt model[token_column])]
+      token_segments = [model[:id], (decrypt model[challenge_column])]
       token_segments.join "-" if token_segments.all?(&:present?)
     end
 
@@ -35,8 +36,8 @@ module SaferTokens
     # the token.  Contrary to #set_token!, the model is not saved.
     # For new records returns +nil+ because +id+ is blank.
     def set_token model
-      new_token = generate_challenge
-      model[token_column] = encrypt new_token
+      challenge = generate_challenge
+      model[challenge_column] = encrypt challenge
       get_token model
     end
 
@@ -60,7 +61,7 @@ module SaferTokens
     def invalidate_token model
       case invalidation_strategy
       when :new then set_token! model
-      when :nullify then model[token_column] = nil ; model.save!
+      when :nullify then model[challenge_column] = nil ; model.save!
       when :destroy then model.destroy
       when :delete then model.class.delete model.id
       else raise ArgumentError, "unknown token invalidation strategy"
@@ -69,7 +70,7 @@ module SaferTokens
     end
 
     def matches? model, challenger
-      compare model[token_column], challenger
+      compare model[challenge_column], challenger
     end
 
     # Verifies token correctness and splits it into segments: +id+

@@ -5,9 +5,9 @@ describe SaferTokens::Column do
   describe ".new" do
     subject{ SaferTokens::Column.method :new }
 
-    it "sets token_column" do
+    it "sets challenge_column" do
       column_object = subject.(:some_column, {})
-      column_object.token_column.should == :some_column
+      column_object.challenge_column.should == :some_column
     end
 
     it "sets default column options unless overriden" do
@@ -41,13 +41,13 @@ describe SaferTokens::Column do
       subject.call(model).should be nil
     end
 
-    it "returns nil when model's token column is blank" do
+    it "returns nil when model's challenge column is blank" do
       model[:token] = nil
       subject.call(model).should be nil
     end
 
     it "returns secure token which parts are separated with dash" \
-        "when both id and token model's columns are present" do
+        "when both id and challenge columns are present" do
       subject.call(model).should == "12345-random_token"
     end
   end
@@ -108,12 +108,12 @@ describe SaferTokens::Column do
       model[:token].should be_nil
     end
 
-    it "sets new token and saves model for :new strategy" do
+    it "sets new challenge and saves model for :new strategy" do
       column_definition.stub :invalidation_strategy => :new
-      SaferTokens::Column::DEFAULT_TOKEN_GENERATOR.stub :call => "new token"
+      SaferTokens::Column::DEFAULT_TOKEN_GENERATOR.stub :call => "new challenge"
       subject.(model)
       model.reload
-      model[:token].should == "new token"
+      model[:token].should == "new challenge"
     end
 
     it "destroys model for :destroy strategy" do
@@ -142,7 +142,7 @@ describe SaferTokens::Column do
     subject{ column_definition.method :parse_token }
     let(:column_definition){ SaferTokens::Column.new :token, {} }
 
-    it "splits token into id and verification" do
+    it "splits token into id and challenge" do
       subject.("1234-arbitrary_string").should == ["1234", "arbitrary_string"]
     end
 
@@ -174,12 +174,12 @@ describe SaferTokens::Column do
     let(:column_definition){ SaferTokens::Column.new :token, {} }
     let!(:persisted_model){ ExampleModel.create! token: "some_token" }
 
-    it "returns the model of which id and token columns consist of valid id and value" do
+    it "returns the model of which id and challenge do match" do
       token = "#{persisted_model.id}-some_token"
       subject.(ExampleModel.all, token).should == persisted_model
     end
 
-    it "id exists but value doesn't match" do
+    it "id exists but challenge doesn't match" do
       token = "#{persisted_model.id}-not_this_token"
       subject.(ExampleModel.all, token).should be nil
     end
