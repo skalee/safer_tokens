@@ -28,18 +28,21 @@ describe SaferTokens::Column do
   describe "#get_token" do
     subject{ column_definition.method :get_token }
     let(:column_definition){ SaferTokens::Column.new :token, {} }
-    let(:model){ ExampleModel.new token: "some_challenge" }
-    let(:column){ :token }
+    let(:model){ ExampleModel.new }
 
-    before do
-      model[:id] = "12345"
+    it "decrypts challenge, builds token and returns it " \
+        "when cryptography provider allows decryption" do
+      crypto_dbl = double :decrypt => "decrypted"
+      column_definition.stub :cryptography_provider => crypto_dbl
+      column_definition.should_receive(:build_token)
+        .with(model, "decrypted")
+        .and_return(:returned_token)
+      subject.call(model).should == :returned_token
     end
 
-    it "builds token and returns it" do
-      column_definition.should_receive(:build_token)
-        .with(model, "some_challenge")
-        .and_return(:proper_token)
-      subject.call(model).should == :proper_token
+    it "returns nil when cryptography provider disallows decryption" do
+      column_definition.stub :cryptography_provider => double
+      subject.call(model).should be nil
     end
   end
 
@@ -54,7 +57,7 @@ describe SaferTokens::Column do
     end
 
     it "returns token" do
-      column_definition.stub(:get_token){ "token_for_model" }
+      column_definition.stub(:build_token){ "token_for_model" }
       subject.(model).should == "token_for_model"
     end
   end

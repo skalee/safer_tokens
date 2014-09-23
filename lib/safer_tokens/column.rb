@@ -28,8 +28,12 @@ module SaferTokens
 
     # Returns token for model basing on his +id+ and token column value.
     def get_token model
-      challenge = decrypt model[challenge_column]
-      build_token model, challenge
+      if cryptography_provider.respond_to? :decrypt
+        challenge = decrypt model[challenge_column]
+        build_token model, challenge
+      else
+        nil
+      end
     end
 
     # Sets the column to freshly generated challenge string and returns
@@ -38,7 +42,7 @@ module SaferTokens
     def set_token model
       challenge = generate_challenge
       model[challenge_column] = encrypt challenge
-      get_token model
+      build_token model, challenge
     end
 
     # Similarly to #set_token, sets the column with freshly generated
@@ -47,9 +51,9 @@ module SaferTokens
     # 1. exception may be raised (from ActiveRecord::Base#save!)
     # 1. never returns +nil+ because record is persisted
     def set_token! model
-      set_token model
+      token = set_token model
       model.save!
-      get_token model
+      token
     end
 
     # Invalidates token.  Database is always altered (model is saved, destroyed
