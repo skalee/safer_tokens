@@ -28,8 +28,8 @@ module SaferTokens
 
     # Returns token for model basing on his +id+ and token column value.
     def get_token model
-      token_segments = [model[:id], (decrypt model[challenge_column])]
-      token_segments.join "-" if token_segments.all?(&:present?)
+      challenge = decrypt model[challenge_column]
+      build_token model, challenge
     end
 
     # Sets the column to freshly generated challenge string and returns
@@ -71,6 +71,11 @@ module SaferTokens
 
     def matches? model, challenger
       compare model[challenge_column], challenger
+    end
+
+    def build_token model, challenge
+      token_segments = [model[:id], challenge]
+      token_segments.join "-" if token_segments.all?(&:present?)
     end
 
     # Verifies token correctness and splits it into segments: +id+

@@ -28,27 +28,18 @@ describe SaferTokens::Column do
   describe "#get_token" do
     subject{ column_definition.method :get_token }
     let(:column_definition){ SaferTokens::Column.new :token, {} }
-    let(:model){ ExampleModel.new }
+    let(:model){ ExampleModel.new token: "some_challenge" }
     let(:column){ :token }
 
     before do
-      model[:token] = "random_token"
       model[:id] = "12345"
     end
 
-    it "returns nil when model's id column is blank" do
-      model[:id] = nil
-      subject.call(model).should be nil
-    end
-
-    it "returns nil when model's challenge column is blank" do
-      model[:token] = nil
-      subject.call(model).should be nil
-    end
-
-    it "returns secure token which parts are separated with dash" \
-        "when both id and challenge columns are present" do
-      subject.call(model).should == "12345-random_token"
+    it "builds token and returns it" do
+      column_definition.should_receive(:build_token)
+        .with(model, "some_challenge")
+        .and_return(:proper_token)
+      subject.call(model).should == :proper_token
     end
   end
 
@@ -134,6 +125,33 @@ describe SaferTokens::Column do
       proc{
         subject.(model)
       }.should raise_exception ArgumentError
+    end
+  end
+
+
+  describe "#build_token" do
+    subject{ column_definition.method :build_token }
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+    let(:model){ ExampleModel.new }
+    let(:column){ :token }
+    let(:challenge){ "random_token" }
+
+    before do
+      model[:id] = "12345"
+    end
+
+    it "returns nil when model's id column is blank" do
+      model[:id] = nil
+      subject.call(model, challenge).should be nil
+    end
+
+    it "returns nil when challenge column is blank" do
+      subject.call(model, nil).should be nil
+    end
+
+    it "returns secure token which parts are separated with dash" \
+        "when both model's id challenge are present" do
+      subject.call(model, challenge).should == "12345-random_token"
     end
   end
 
