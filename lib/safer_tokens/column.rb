@@ -28,7 +28,7 @@ module SaferTokens
 
     # Returns token for model basing on his +id+ and token column value.
     def get_token model
-      if cryptography_provider.respond_to? :decrypt
+      if challenge_readable?
         challenge = decrypt model[challenge_column]
         build_token model, challenge
       else
@@ -101,6 +101,14 @@ module SaferTokens
       model = use_token relation, token
       invalidate_token model if model.present?
       model
+    end
+
+    # If +false+, challenge can be obtained only at its generation.  After that,
+    # only its digest or derived key is stored which can be used for comparison.
+    # If +true+, then challenge is stored either in cleartext
+    # (see Cryptography::Cleartext) or can be decrypted on demand.
+    def challenge_readable?
+      cryptography_provider.respond_to? :decrypt
     end
 
   private

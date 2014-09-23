@@ -31,17 +31,18 @@ describe SaferTokens::Column do
     let(:model){ ExampleModel.new }
 
     it "decrypts challenge, builds token and returns it " \
-        "when cryptography provider allows decryption" do
-      crypto_dbl = double :decrypt => "decrypted"
-      column_definition.stub :cryptography_provider => crypto_dbl
+        "when challenge is readable" do
+      column_definition.should_receive(:challenge_readable?).and_return(true)
+      column_definition.should_receive(:decrypt).and_return("decrypted")
       column_definition.should_receive(:build_token)
         .with(model, "decrypted")
         .and_return(:returned_token)
       subject.call(model).should == :returned_token
     end
 
-    it "returns nil when cryptography provider disallows decryption" do
-      column_definition.stub :cryptography_provider => double
+    it "returns nil and does not attempt to read challenge " \
+        "when challenge is not readable" do
+      column_definition.should_receive(:challenge_readable?).and_return(false)
       subject.call(model).should be nil
     end
   end
@@ -251,4 +252,21 @@ describe SaferTokens::Column do
     end
   end
 
+
+  describe "#challenge_readable?" do
+    subject{ column_definition.method :challenge_readable? }
+    let(:column_definition){ SaferTokens::Column.new :token, {} }
+
+    it "is true when cryptography_provider defines #decrypt" do
+      crypto_dbl = double :decrypt => "decrypted"
+      column_definition.stub :cryptography_provider => crypto_dbl
+      subject.().should be true
+    end
+
+    it "is false when cryptography_provider does not define #decrypt" do
+      crypto_dbl = double
+      column_definition.stub :cryptography_provider => crypto_dbl
+      subject.().should be false
+    end
+  end
 end
