@@ -8,6 +8,8 @@ RSpec.configure do |config|
   config.before :example do
     [
       ["example_model", "ExampleModel"],
+      ["users", "User"],
+      ["api_tokens", "ApiToken"],
     ].each do |table_name, class_name|
       model = Class.new ActiveRecord::Base
       model.table_name = table_name
