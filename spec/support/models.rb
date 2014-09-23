@@ -6,9 +6,13 @@ RSpec.configure do |config|
   # Possible optimization:
   # https://github.com/stefankroes/ancestry/blob/3508f299e/test/environment.rb
   config.before :example do
-    model = Class.new ActiveRecord::Base
-    model.table_name = "example_model"
-    stub_const "ExampleModel", model
+    [
+      ["example_model", "ExampleModel"],
+    ].each do |table_name, class_name|
+      model = Class.new ActiveRecord::Base
+      model.table_name = table_name
+      stub_const class_name, model
+    end
   end
 
 end
