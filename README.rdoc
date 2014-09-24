@@ -1,5 +1,11 @@
 = SaferTokens
 
+{<img src="https://img.shields.io/gem/v/safer_tokens.svg" alt="Version" />}[https://rubygems.org/gems/safer_tokens]
+{<img src="https://img.shields.io/travis/skalee/safer_tokens.svg" alt="Build Status" />}[https://travis-ci.org/skalee/safer_tokens]
+{<img src="http://img.shields.io/gemnasium/skalee/safer_tokens.svg" alt="Dependencies" />}[https://gemnasium.com/skalee/safer_tokens]
+{<img src="https://img.shields.io/codeclimate/github/skalee/safer_tokens.svg" alt="Code Climate" />}[https://codeclimate.com/github/skalee/safer_tokens]
+{<img src="http://img.shields.io/coveralls/skalee/safer_tokens.svg" alt="Test Coverage" />}[https://coveralls.io/r/skalee/safer_tokens]
+
 TODO: Write a gem description
 
 == Usage
