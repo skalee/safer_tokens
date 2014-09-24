@@ -1,3 +1,5 @@
+# coding: utf-8
+
 require "spec_helper"
 
 describe "Expending tokens" do
