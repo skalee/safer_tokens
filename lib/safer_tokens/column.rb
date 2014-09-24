@@ -89,6 +89,9 @@ module SaferTokens
       segments.try(:size) == 2 and segments or raise ArgumentError
     end
 
+    # Find by +token+ in given +relation+ and returns found record.  If none
+    # found or challenge comparison fails, +nil+ is returned instead.  Contrary
+    # to Rails finder methods, never raises +ActiveRecord::RecordNotFound+.
     def use_token relation, token
       id, challenger = parse_token token
       model = relation.find(id)
@@ -97,6 +100,14 @@ module SaferTokens
       nil
     end
 
+    # Find by +token+ in given +relation+ and returns found record.  If none
+    # found or challenge comparison fails, +nil+ is returned instead.  Contrary
+    # to Rails finder methods, never raises +ActiveRecord::RecordNotFound+.
+    #
+    # Token is immediately invalidated.  This always requires saving the record
+    # or removing it from the database, depending on invalidation strategy.
+    # It is possible that returned record does not have corresponding row
+    # in the database because it was just removed.
     def expend_token relation, token
       model = use_token relation, token
       invalidate_token model if model.present?
