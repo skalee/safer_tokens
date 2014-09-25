@@ -11,10 +11,8 @@ rvm:
   - 1.9.3
   - "2.1"
   - "2.0"
-  - ruby-head
   - rbx-2
   - jruby
-  - jruby-head
 
 matrix:
   exclude:
@@ -25,6 +23,12 @@ matrix:
     - rvm: "2.1"
       gemfile: gemfiles/Rails-4.1.gemfile
       env: RUN_COVERALLS=true
+
+    - rvm: "ruby-head"
+      gemfile: gemfiles/Rails-4.1.gemfile
+
+    - rvm: "jruby-head"
+      gemfile: gemfiles/Rails-4.1.gemfile
 
   allow_failures:
     - rvm: ruby-head
