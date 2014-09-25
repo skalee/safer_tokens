@@ -1,0 +1,5 @@
+eval File.read "gemfiles/common.gemfile"
+
+gem "activerecord", ">= 4.2.0.beta", "< 4.3"
+
+gemspec path: ".."

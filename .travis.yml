@@ -2,8 +2,14 @@ language: ruby
 cache: bundler
 script: bundle exec rspec
 
+gemfile:
+  - gemfiles/Rails-4.2.gemfile
+  - gemfiles/Rails-4.1.gemfile
+  - gemfiles/Rails-4.0.gemfile
+
 rvm:
   - 1.9.3
+  - "2.1"
   - "2.0"
   - ruby-head
   - rbx-2
@@ -11,10 +17,16 @@ rvm:
   - jruby-head
 
 matrix:
+  exclude:
+    - rvm: "2.1"
+      gemfile: gemfiles/Rails-4.1.gemfile
+
   include:
     - rvm: "2.1"
-      env: "RUN_COVERALLS=true"
+      gemfile: gemfiles/Rails-4.1.gemfile
+      env: RUN_COVERALLS=true
 
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
+    - gemfile: gemfiles/Rails-4.2.gemfile
