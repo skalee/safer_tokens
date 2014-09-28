@@ -1,7 +1,7 @@
 module SaferTokens
   class Column
 
-    DEFAULT_TOKEN_GENERATOR = proc{ SecureRandom.hex(64) }
+    DEFAULT_CHALLENGE_GENERATOR = proc{ SecureRandom.hex(64) }
 
     attr_reader :challenge_column, :invalidation_strategy,
       :cryptography_provider
@@ -126,7 +126,7 @@ module SaferTokens
 
     # Generates challenge string.
     def generate_challenge
-      DEFAULT_TOKEN_GENERATOR.call
+      DEFAULT_CHALLENGE_GENERATOR.call
     end
 
   end
