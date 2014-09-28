@@ -107,7 +107,7 @@ describe SaferTokens::Column do
 
     it "sets new challenge and saves model for :new strategy" do
       column_definition.stub :invalidation_strategy => :new
-      SaferTokens::Column::DEFAULT_CHALLENGE_GENERATOR.stub :call => "new challenge"
+      column_definition.stub :generate_challenge => "new challenge"
       subject.(model)
       model.reload
       model[:token].should == "new challenge"
