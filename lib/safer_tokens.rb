@@ -1,3 +1,4 @@
+require "active_support/core_ext/module/delegation.rb"
 require "active_record"
 
 require "safer_tokens/column"
