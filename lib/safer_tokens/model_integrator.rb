@@ -17,11 +17,11 @@ module SaferTokens
 
     def define_methods column_name
       define_singleton_method "use_#{column_name}" do |token|
-        safer_tokens_columns[column_name].use_token all, token
+        safer_tokens_columns[column_name].use_token where(nil), token
       end
 
       define_singleton_method "expend_#{column_name}" do |token|
-        safer_tokens_columns[column_name].expend_token all, token
+        safer_tokens_columns[column_name].expend_token where(nil), token
       end
 
       define_method column_name do

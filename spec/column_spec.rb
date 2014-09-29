@@ -197,20 +197,21 @@ describe SaferTokens::Column do
     subject{ column_definition.method :use_token }
     let(:column_definition){ SaferTokens::Column.new :token, {} }
     let!(:persisted_model){ ExampleModel.create! token: "some_token" }
+    let(:relation){ ExampleModel.where(nil) }
 
     it "returns the model of which id and challenge do match" do
       token = "#{persisted_model.id}-some_token"
-      subject.(ExampleModel.all, token).should == persisted_model
+      subject.(relation, token).should == persisted_model
     end
 
     it "returns nil when id exists but challenge doesn't match" do
       token = "#{persisted_model.id}-not_this_token"
-      subject.(ExampleModel.all, token).should be nil
+      subject.(relation, token).should be nil
     end
 
     it "returns nil when there is no record with matching id" do
       token = "#{persisted_model.id + 1}-some_token"
-      subject.(ExampleModel.all, token).should be nil
+      subject.(relation, token).should be nil
     end
   end
 
