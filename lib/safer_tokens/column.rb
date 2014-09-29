@@ -127,7 +127,10 @@ module SaferTokens
 
     # Generates challenge string.
     def generate_challenge model
-      challenge_generator.call model
+      case challenge_generator
+      when Symbol then model.send challenge_generator
+      else challenge_generator.call model
+      end
     end
 
   end

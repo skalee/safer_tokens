@@ -254,13 +254,27 @@ describe SaferTokens::Column do
     subject{ column_definition.method :generate_challenge }
 
     let(:column_definition){ SaferTokens::Column.new :token, {} }
+    let(:model){ double }
 
-    it "proxies calls to the challenge_generator set" do
-      generator_dbl = double
-      generator_dbl.should_receive(:call).with(:model).and_return(:challenge)
-      column_definition.stub :challenge_generator => generator_dbl
-      ret_val = subject.(:model)
-      ret_val.should be :challenge
+    context "when challenge_generator is a proc" do
+      let(:generator_proc){ proc{} }
+      before{ column_definition.stub :challenge_generator => generator_proc }
+
+      it "proxies the call to it" do
+        generator_proc.should_receive(:call).with(model).and_return(:challenge)
+        ret_val = subject.(model)
+        ret_val.should be :challenge
+      end
+    end
+
+    context "when challenge_generator is a symbol" do
+      before{ column_definition.stub :challenge_generator => :symbol }
+
+      it "uses :send to call indicated method on passed model" do
+        model.should_receive(:send).with(:symbol).and_return(:challenge)
+        ret_val = subject.(model)
+        ret_val.should be :challenge
+      end
     end
   end
 

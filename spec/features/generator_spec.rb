@@ -12,6 +12,11 @@ describe "Custom generators" do
 
     ExampleModel.class_eval do
       token_in :token, options_
+
+    private
+      def custom_generator
+        self[:id] + 100
+      end
     end
 
     ExampleModel.create!
@@ -30,6 +35,15 @@ describe "Custom generators" do
 
     it "generates challenge by calling given lambda" do
       model.set_token.should =~ /-(rock|paper|scissors)\Z/
+    end
+  end
+
+
+  context "when symbol is passed as genertor option" do
+    before{ options[:generator] = :custom_generator }
+
+    it "generates challenge by calling referenced method" do
+      model.set_token.should == "#{model.id}-#{model.id + 100}"
     end
   end
 
