@@ -8,8 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = SaferTokens::VERSION
   spec.authors       = ["Sebastian Skałacki"]
   spec.email         = ["skalee@gmail.com"]
-  spec.summary       = %q{Timing-attack-proof tokens for ActiveRecord}
-  spec.description   = %q{Tokens for securing APIs, confirmations etc. TODO}
+  spec.summary       = %q{Random tokens API for ActiveRecord}
+  spec.description   = %q{Generating and finding by random tokens in ActiveRecord. Designed with security in mind.}
+
   spec.homepage      = "https://github.com/skalee/safer_tokens"
   spec.license       = "Ruby, ISC, 2-clause BSD"
 

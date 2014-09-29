@@ -1,0 +1,252 @@
+Safer Tokens
+============
+:homepage: https://github.com/skalee/safer_tokens
+:toc:
+
+image:https://img.shields.io/gem/v/safer_tokens.svg[
+Version, link="https://rubygems.org/gems/safer_tokens"]
+image:https://img.shields.io/travis/skalee/safer_tokens.svg[
+Build Status, link="https://travis-ci.org/skalee/safer_tokens"]
+image:https://img.shields.io/gemnasium/skalee/safer_tokens.svg[
+Dependencies, link="https://gemnasium.com/skalee/safer_tokens"]
+image:https://img.shields.io/codeclimate/github/skalee/safer_tokens.svg[
+Code Climate, link="https://codeclimate.com/github/skalee/safer_tokens"]
+image:http://img.shields.io/coveralls/skalee/safer_tokens.svg[
+Test Coverage, link="https://coveralls.io/r/skalee/safer_tokens"]
+
+Safer Tokens extends ActiveRecord with neat API for generating and finding by
+random tokens.  Among other gems, it stands out with its approach to security:
+
+* Lookup methods are timing-attack-proof
+* Tokens can be digested with BCrypt or SCrypt instead of storing them as
+  a plain text.  It is crucial when you grant someone read-only access to your
+  database.  (Do you have in your application an admin panel with Rails Admin
+  by chance?)
+
+It works with ActiveRecord 3.0 onwards.  Security features inspired by Devise.
+
+
+Usage
+-----
+
+Quick introduction
+~~~~~~~~~~~~~~~~~~
+
+Firstly, define token columns in ActiveRecord model.  You may define multiple
+columns at once and provide options hash, as in following example:
+
+[source,ruby]
+--------------------------------------------------------------------------------
+class User < ActiveRecord::Base
+  token_in :email_confirmation, :password_reset, secure_with: :bcrypt
+end
+--------------------------------------------------------------------------------
+
+Then manipulate tokens with methods of names inferred from those columns:
+
+[source,ruby]
+--------------------------------------------------------------------------------
+user  = User.create!
+token = user.set_password_reset!
+found = User.use_password_reset token     # find by token
+found = User.expend_password_reset token  # find and invalidate token
+--------------------------------------------------------------------------------
+
+Find more examples in https://github.com/skalee/safer_tokens/tree/master/spec/features[feature specs].
+
+
+Token anatomy
+~~~~~~~~~~~~~
+
+Safer Tokens assume that you got primary key in +id+ column.
+
+Token consists of two segments:
+
+ID::
+  ID of the record in the database used for database lookup.
+
+challenge::
+  Value which is known to client.  There is no need to set index on this column
+  neither to enforce its uniqueness.  Challenge is not used for database lookup
+  and tokens are unique by definition in the scope in which +ID+ is unique
+  (at least in the whole table).
+
+Segments are separated with single dash.
+
+Separating database lookup from challenge comparison has a couple of benefits:
+
+* challenge can be encrypted or digested before storing it in the database
+* even if stored in cleartext, challenge comparison can be done with constant
+  time algorithm (timing-attack-proof)
+
+
+Setting and getting tokens
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Two setter instance methods are defined per token column:
+
+* +#set_<token_column_name>+
+* +#set_<token_column_name>!+
+
+Both generate new challenge and store it in adequate field.
+
+Bang method saves the record with +#save!+.  This may result with raising
+an exception.  Bangless method leaves the record in dirty state.
+
+Token is returned provided that +id+ is set (record is persisted) or +nil+ for
+new records.  Bang method enforces saving the record thus never returns +nil+.
+For destroyed records both method return proper but useless token.
+
+Attribute reader is overriden and returns token if both +id+ and challenge can
+be obtained (read: record is persisted and challenge is not digested) or +nil+
+otherwise.
+
+Attribute writer is not overriden but don't use it.  Any suggestions or
+contributions how to remove them are welcome warmly.
+
+
+Finders
+~~~~~~~
+
+Safer Tokens defines two finder methods for every token column:
+
+* +::use_<token_column_name>(token)+
+* +::expend_<token_column_name>(token)+
+
+Both attempt to find the record by +ID+ segment of the token, then compare
+challenge in token with challenge stored in the record found.  On success,
+found record is returned.  In addition, +expend_*+ invalidates the token which
+requires saving (or destroing, deleting) that record.
+
+Given example:
+
+[source,ruby]
+--------------------------------------------------------------------------------
+class User < ActiveRecord::Base
+  token_in :email_confirmation, :password_reset
+end
+--------------------------------------------------------------------------------
+
+Four finder class methods are defined on +User+:
+
+* +::use_email_confirmation+
+* +::expend_email_confirmation+
+* +::use_password_reset+
+* +::expend_password_reset+.
+
+
+Invalidation strategies
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Invalidation strategy describes what to do when token is expended.  Strategy is
+specified at token column definition with +invalidate_with+ option, for example:
+
+[source,ruby]
+--------------------------------------------------------------------------------
+class ApiToken < ActiveRecord::Base
+  token_in :token, :invalidate_with => :destroy
+end
+--------------------------------------------------------------------------------
+
+There are four invalidations strategies available:
+
++:delete+::
+  Deletes the record using
+  http://api.rubyonrails.org/classes/ActiveRecord/Persistence.html#method-i-delete[ActiveRecord::Persistence#delete],
+  that is destroy callbacks are not triggered.
+
++:destroy+::
+  Destroys the record using
+  http://api.rubyonrails.org/classes/ActiveRecord/Persistence.html#method-i-destroy[ActiveRecord::Persistence#destroy],
+  destroy callbacks are triggered, record becomes frozen.
+
++:new+::
+  Sets new challenge.  Because new token is not returned, it does not play well
+  with +:secure_with+ option.
+
++:nullify+::
+  Nullifies challenge column value.
+
+
+Cryptography providers
+~~~~~~~~~~~~~~~~~~~~~~
+
+Random tokens are nothing more than unique, very strong passwords.  Obtaining
+them by attacker naturally does not compromise users' accounts on other sites.
+However acquiring tokens e.g. for password reset or API access allows the
+attacker to hijack accounts.  When you grant someone read-only access to your
+database, you may implicitly grant him write access this way.
+
+For this reason you may want not to store tokens in cleartext but employ some
+http://en.wikipedia.org/wiki/Key_derivation_function[key derivation function]
+instead.  BCrypt seems to be the safest choice, SCrypt is available too.
+
+Have in mind that key derivation functions are computationally expensive
+because it makes brute-force attacks futile.  While usually negligible, in some
+extreme cases the impact on application's performance can be to strong.  Using
+general purpose hash algorithms may help, but have in mind that
+http://codahale.com/how-to-safely-store-a-password/[they are not well suited for
+digesting passwords] and having very long random challenge is the only way to
+keep them safe.  This might be important with custom challenge generators.
+Neither custom cryptography providers nor HMAC-based ones are implemented yet.
+Contributions welcome.
+
+Cleartext::
+  Dummy provider which stores challenges in cleartext.  This is the default one.
+
+BCrypt::
+  BCrypt is a key derivation function widely used in Ruby world.  Rails
+  http://api.rubyonrails.org/classes/ActiveModel/SecurePassword/ClassMethods.html[#has_secure_password]
+  relies on it as well as Devise.
+
+SCrypt::
+  Think of younger (born in 2009) brother of BCrypt (1999), even more
+  computationally expensive.
+
+
+Installation
+------------
+
+Add this line to your application's Gemfile:
+
+--------------------------------------------------------------------------------
+gem "secure_token"
+--------------------------------------------------------------------------------
+
+And then execute:
+
+--------------------------------------------------------------------------------
+$ bundle
+--------------------------------------------------------------------------------
+
+Or install it yourself as:
+
+--------------------------------------------------------------------------------
+$ gem install secure_token
+--------------------------------------------------------------------------------
+
+
+Contributing
+------------
+
+1. Fork it ( https://github.com/[my-github-username]/secure_token/fork )
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create a new Pull Request
+
+
+TODO
+~~~~
+
+I want to complete most of following features before releasing version 1.0.
+Contributions are welcome.
+
+* Custom cryptography providers
+* At least one builtin cryptography provider using HMAC
+* At least one builtin cryptography provider which encrypts challenges
+  (reversibly)
+* Customizing finder column (not only +id+)
+* Customizing token separator (string which separates token segments)
+* Enforcing challenge presence (autogenerating them for new records)
+* Some callbacks maybe?
