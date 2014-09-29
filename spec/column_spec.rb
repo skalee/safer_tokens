@@ -15,14 +15,17 @@ describe SaferTokens::Column do
     it "sets default column options unless overriden" do
       column_object = subject.(:some_column, {})
       column_object.invalidation_strategy.should == :nullify
+      column_object.cryptography_provider.should be_kind_of SaferTokens::Cryptography::Cleartext
     end
 
     it "allows overriding column options" do
       options_arg = {
         invalidate_with: :destroy,
+        secure_with: :bcrypt,
       }
       column_object = subject.(:some_column, options_arg)
       column_object.invalidation_strategy.should == :destroy
+      column_object.cryptography_provider.should be_kind_of SaferTokens::Cryptography::BCrypt
     end
   end
 
