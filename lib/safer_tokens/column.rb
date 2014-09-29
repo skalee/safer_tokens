@@ -4,7 +4,7 @@ module SaferTokens
     DEFAULT_CHALLENGE_GENERATOR = proc{ SecureRandom.hex(64) }
 
     attr_reader :challenge_column, :invalidation_strategy,
-      :cryptography_provider
+      :cryptography_provider, :challenge_generator
 
     delegate :encrypt, :decrypt, :compare, to: :cryptography_provider
 
@@ -24,6 +24,7 @@ module SaferTokens
         raise ArgumentError, message
       end
       @cryptography_provider = cryptography_provider_class.new
+      @challenge_generator = options[:generator] || DEFAULT_CHALLENGE_GENERATOR
     end
 
     # Returns token for model basing on his +id+ and token column value.
@@ -126,7 +127,7 @@ module SaferTokens
 
     # Generates challenge string.
     def generate_challenge
-      DEFAULT_CHALLENGE_GENERATOR.call
+      challenge_generator.call
     end
 
   end

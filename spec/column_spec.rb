@@ -16,16 +16,19 @@ describe SaferTokens::Column do
       column_object = subject.(:some_column, {})
       column_object.invalidation_strategy.should == :nullify
       column_object.cryptography_provider.should be_kind_of SaferTokens::Cryptography::Cleartext
+      column_object.challenge_generator.should == SaferTokens::Column::DEFAULT_CHALLENGE_GENERATOR
     end
 
     it "allows overriding column options" do
       options_arg = {
         invalidate_with: :destroy,
         secure_with: :bcrypt,
+        generator: :given_generator,
       }
       column_object = subject.(:some_column, options_arg)
       column_object.invalidation_strategy.should == :destroy
       column_object.cryptography_provider.should be_kind_of SaferTokens::Cryptography::BCrypt
+      column_object.challenge_generator.should == :given_generator
     end
   end
 
@@ -251,6 +254,19 @@ describe SaferTokens::Column do
     subject{ column_definition.method :generate_challenge }
 
     let(:column_definition){ SaferTokens::Column.new :token, {} }
+
+    it "proxies calls to the challenge_generator set" do
+      generator_dbl = double
+      generator_dbl.should_receive(:call).and_return(:challenge)
+      column_definition.stub :challenge_generator => generator_dbl
+      ret_val = subject.()
+      ret_val.should be :challenge
+    end
+  end
+
+
+  describe "::DEFAULT_CHALLENGE_GENERATOR" do
+    subject{ SaferTokens::Column::DEFAULT_CHALLENGE_GENERATOR }
 
     it "returns 64-byte random in hexadecimal notation" do
       ret_val = subject.()
