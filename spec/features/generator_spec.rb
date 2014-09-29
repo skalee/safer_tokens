@@ -26,7 +26,7 @@ describe "Custom generators" do
 
 
   context "when lambda is passed as genertor option" do
-    before{ options[:generator] = lambda{ %w[rock paper scissors].sample } }
+    before{ options[:generator] = lambda{ |_| %w[rock paper scissors].sample } }
 
     it "generates challenge by calling given lambda" do
       model.set_token.should =~ /-(rock|paper|scissors)\Z/

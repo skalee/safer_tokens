@@ -257,9 +257,9 @@ describe SaferTokens::Column do
 
     it "proxies calls to the challenge_generator set" do
       generator_dbl = double
-      generator_dbl.should_receive(:call).and_return(:challenge)
+      generator_dbl.should_receive(:call).with(:model).and_return(:challenge)
       column_definition.stub :challenge_generator => generator_dbl
-      ret_val = subject.()
+      ret_val = subject.(:model)
       ret_val.should be :challenge
     end
   end

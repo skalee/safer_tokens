@@ -41,7 +41,7 @@ module SaferTokens
     # the token.  Contrary to #set_token!, the model is not saved.
     # For new records returns +nil+ because +id+ is blank.
     def set_token model
-      challenge = generate_challenge
+      challenge = generate_challenge model
       model[challenge_column] = encrypt challenge
       build_token model, challenge
     end
@@ -126,8 +126,8 @@ module SaferTokens
   private
 
     # Generates challenge string.
-    def generate_challenge
-      challenge_generator.call
+    def generate_challenge model
+      challenge_generator.call model
     end
 
   end
