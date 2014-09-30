@@ -2,6 +2,7 @@ module SaferTokens
   class Column
 
     DEFAULT_CHALLENGE_GENERATOR = proc{ SecureRandom.hex(64) }
+    INVALIDATION_STRATEGIES = [:new, :nullify, :destroy, :delete]
 
     attr_reader :challenge_column, :invalidation_strategy,
       :cryptography_provider, :challenge_generator
@@ -10,7 +11,12 @@ module SaferTokens
 
     def initialize challenge_column, options
       @challenge_column = challenge_column
+
       @invalidation_strategy = options[:invalidate_with] || :nullify
+      unless INVALIDATION_STRATEGIES.include? @invalidation_strategy
+        message = "Unknown invalidation strategy: #{@invalidation_strategy}"
+        raise ArgumentError, message
+      end
 
       case options[:secure_with]
       when :bcrypt

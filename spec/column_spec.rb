@@ -30,6 +30,18 @@ describe SaferTokens::Column do
       column_object.cryptography_provider.should be_kind_of SaferTokens::Cryptography::BCrypt
       column_object.challenge_generator.should == :given_generator
     end
+
+    it "fails for unknown invalidation strategy" do
+      proc{
+        subject.(:some_column, invalidate_with: :unknown)
+      }.should raise_exception ArgumentError
+    end
+
+    it "fails for unknown cryptography provider" do
+      proc{
+        subject.(:some_column, secure_with: :unknown)
+      }.should raise_exception ArgumentError
+    end
   end
 
 
