@@ -20,8 +20,7 @@ random tokens.  Among other gems, it stands out with its approach to security:
 * Lookup methods are timing-attack-proof
 * Tokens can be digested with BCrypt or SCrypt instead of storing them as
   a plain text.  It is crucial when you grant someone read-only access to your
-  database.  (Do you have in your application an admin panel with Rails Admin
-  by chance?)
+  database.
 
 It works with ActiveRecord 3.0 onwards.  Security features inspired by Devise.
 
@@ -41,6 +40,9 @@ class User < ActiveRecord::Base
   token_in :email_confirmation, :password_reset, secure_with: :bcrypt
 end
 --------------------------------------------------------------------------------
+
+NOTE: If there's any admin panel, make sure that either tokens are not displayed
+there or they are digested with +secure_with+ option.
 
 Then manipulate tokens with methods of names inferred from those columns:
 
