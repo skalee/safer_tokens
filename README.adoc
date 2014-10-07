@@ -137,6 +137,18 @@ Four finder class methods are defined on +User+:
 * +::expend_password_reset+.
 
 
+Generators
+~~~~~~~~~~
+
+By default, token challenges are random 128-digit hexadecimal numbers.  This is
+more than enough when it comes to challenge strength but poor for user
+experience if he's supposed to rewrite it from SMS.
+
+There are two ways to provide custom generator: inline lambda (which receives
+model as a parameter) and symbol indicating instance method.  Check
+https://github.com/skalee/safer_tokens/blob/master/spec/features/generator_spec.rb[+spec/features/generator_spec.rb+]
+for examples.
+
 Invalidation strategies
 ~~~~~~~~~~~~~~~~~~~~~~~
 
