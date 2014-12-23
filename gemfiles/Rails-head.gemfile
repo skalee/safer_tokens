@@ -1,5 +1,5 @@
 eval File.read "gemfiles/common.gemfile"
 
-gem "activerecord", "~> 4.2.0"
+gem "activerecord", github: "rails/rails"
 
 gemspec path: ".."
