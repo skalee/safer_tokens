@@ -20,6 +20,8 @@ matrix:
     # for ActiveRecord compatibility issues with various Rubies.
     - rvm: "2.0"
       gemfile: gemfiles/Rails-4.2.gemfile
+    - rvm: "2.1"
+      gemfile: gemfiles/Rails-4.2.gemfile
     - rvm: rbx-2
       gemfile: gemfiles/Rails-4.2.gemfile
     - rvm: ruby-head
@@ -28,7 +30,7 @@ matrix:
       gemfile: gemfiles/Rails-4.2.gemfile
 
     # One build designated to check test coverage with Coveralls.
-    - rvm: "2.1"
+    - rvm: "2.2"
       gemfile: gemfiles/Rails-4.2.gemfile
       env: RUN_COVERALLS=true
 
