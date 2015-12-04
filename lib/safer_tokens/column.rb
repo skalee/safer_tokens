@@ -2,7 +2,7 @@ module SaferTokens
   class Column
 
     DEFAULT_CHALLENGE_GENERATOR = proc{ SecureRandom.hex(64) }
-    INVALIDATION_STRATEGIES = [:new, :nullify, :destroy, :delete]
+    INVALIDATION_STRATEGIES = [:new, :nullify, :destroy, :delete, :timestamp]
 
     attr_reader :challenge_column, :invalidation_strategy,
       :cryptography_provider, :challenge_generator
@@ -13,6 +13,7 @@ module SaferTokens
       @challenge_column = challenge_column
 
       @invalidation_strategy = options[:invalidate_with] || :nullify
+      @invalidation_strategy_name = @invalidation_strategy.try(:first)
       unless INVALIDATION_STRATEGIES.include? @invalidation_strategy
         message = "Unknown invalidation strategy: #{@invalidation_strategy}"
         raise ArgumentError, message
@@ -69,6 +70,7 @@ module SaferTokens
     # +:nullify+:: set the column to nil
     # +:destroy+:: destroy the model
     # +:delete+:: delete the model without triggering callbacks
+    # +:timestamp+:: TODO
     #
     # This method must be called on a persisted record, exception is raised
     # otherwise.
@@ -83,6 +85,7 @@ module SaferTokens
       when :nullify then model[challenge_column] = nil ; model.save!
       when :destroy then model.destroy
       when :delete then model.class.delete model.id
+      when :timestamp then model.touch(timestamp_column)
       else raise ArgumentError, "unknown token invalidation strategy"
       end
       nil
@@ -135,6 +138,10 @@ module SaferTokens
     # (see Cryptography::Cleartext) or can be decrypted on demand.
     def challenge_readable?
       cryptography_provider.respond_to? :decrypt
+    end
+
+    def timestamp_column
+      "#{challenge_column}_spent_at"
     end
 
   private

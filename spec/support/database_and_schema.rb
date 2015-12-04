@@ -8,6 +8,7 @@ ActiveRecord::Schema.define do
     t.string :token
     t.string :another_token
     t.string :yet_another
+    t.datetime :token_spent_at
   end
 
   # Following tables are using in feature specs

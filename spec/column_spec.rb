@@ -144,6 +144,13 @@ describe SaferTokens::Column do
       model.class.should_not exist model.id
     end
 
+    it "updates a timestamp for :timestamp strategy" do
+      column_definition.stub :invalidation_strategy => :timestamp
+      subject.(model)
+      model.reload
+      model[:token_spent_at].should satisfy &:acts_like_time?
+    end
+
     it "fails for unknown strategy" do
       column_definition.stub :invalidation_strategy => :strange_strategy
       proc{
