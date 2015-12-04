@@ -69,7 +69,15 @@ module SaferTokens
     # +:nullify+:: set the column to nil
     # +:destroy+:: destroy the model
     # +:delete+:: delete the model without triggering callbacks
+    #
+    # This method must be called on a persisted record, exception is raised
+    # otherwise.
     def invalidate_token model
+      unless model.persisted?
+        msg = "cannot invalidate on a new record object"
+        raise ::ActiveRecord::ActiveRecordError, msg
+      end
+
       case invalidation_strategy
       when :new then set_token! model
       when :nullify then model[challenge_column] = nil ; model.save!

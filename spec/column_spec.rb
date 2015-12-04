@@ -150,6 +150,13 @@ describe SaferTokens::Column do
         subject.(model)
       }.should raise_exception ArgumentError
     end
+
+    it "requires persisted record" do
+      model.stub :persisted? => false
+      proc{
+        subject.(model)
+      }.should raise_exception ActiveRecord::ActiveRecordError
+    end
   end
 
 
