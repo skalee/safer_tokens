@@ -114,7 +114,7 @@ describe SaferTokens::Column do
   describe "#invalidate_token" do
     subject{ column_definition.method :invalidate_token }
     let(:column_definition){ SaferTokens::Column.new :token, {} }
-    let(:model){ ExampleModel.new token: "old token" }
+    let(:model){ ExampleModel.create token: "old token" }
 
     it "nullifies column and saves model for :nullify strategy" do
       column_definition.stub :invalidation_strategy => :nullify
