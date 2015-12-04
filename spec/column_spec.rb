@@ -106,7 +106,7 @@ describe SaferTokens::Column do
 
     it "raises exception when model validations fail" do
       model.stub(:valid? => false)
-      proc{ subject.(model) }.should raise_exception
+      proc{ subject.(model) }.should raise_exception ActiveRecord::RecordInvalid
     end
   end
 
