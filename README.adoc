@@ -5,8 +5,8 @@ Safer Tokens
 
 image:https://img.shields.io/gem/v/safer_tokens.svg[
 Version, link="https://rubygems.org/gems/safer_tokens"]
-image:https://img.shields.io/travis/skalee/safer_tokens.svg[
-Build Status, link="https://travis-ci.org/skalee/safer_tokens"]
+image:https://img.shields.io/travis/skalee/safer_tokens/master.svg[
+Build Status, link="https://travis-ci.org/skalee/safer_tokens/branches"]
 image:https://img.shields.io/gemnasium/skalee/safer_tokens.svg[
 Dependencies, link="https://gemnasium.com/skalee/safer_tokens"]
 image:https://img.shields.io/codeclimate/github/skalee/safer_tokens.svg[
