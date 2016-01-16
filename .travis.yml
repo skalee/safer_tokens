@@ -34,6 +34,8 @@ matrix:
       gemfile: gemfiles/Rails-4.2.gemfile
     - rvm: jruby-head
       gemfile: gemfiles/Rails-4.2.gemfile
+    - rvm: "2.3.0"
+      gemfile: gemfiles/Rails-head.gemfile
 
     # One build designated to check test coverage with Coveralls.
     - rvm: "2.3.0"
