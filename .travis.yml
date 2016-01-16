@@ -22,11 +22,13 @@ matrix:
       gemfile: gemfiles/Rails-4.2.gemfile
     - rvm: "2.1"
       gemfile: gemfiles/Rails-4.2.gemfile
+    - rvm: "2.2"
+      gemfile: gemfiles/Rails-4.2.gemfile
     - rvm: rbx-2
       gemfile: gemfiles/Rails-4.2.gemfile
-    - rvm: jruby-19mode
+    - rvm: rbx-3
       gemfile: gemfiles/Rails-4.2.gemfile
-    - rvm: 2.3.0-preview2
+    - rvm: jruby-19mode
       gemfile: gemfiles/Rails-4.2.gemfile
     - rvm: ruby-head
       gemfile: gemfiles/Rails-4.2.gemfile
@@ -34,7 +36,7 @@ matrix:
       gemfile: gemfiles/Rails-4.2.gemfile
 
     # One build designated to check test coverage with Coveralls.
-    - rvm: "2.2"
+    - rvm: "2.3.0"
       gemfile: gemfiles/Rails-4.2.gemfile
       env: RUN_COVERALLS=true
 
